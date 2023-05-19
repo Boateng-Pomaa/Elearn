@@ -8,7 +8,7 @@ export async function loginUser(req,res){
         const user = await userModel.findOne({username:username})
         if(user &&(await bcrypt.compare(password, user.password)))
            {
-             res.status(401).json({
+             res.status(200).json({
                     message:"Login successful",
                     user
                 })

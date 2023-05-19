@@ -1,4 +1,4 @@
-@url = "http://localhost:5000/"
+@url = "http://localhost:5000"
 
 ###
 POST http://localhost:5000/signup HTTP/1.1
