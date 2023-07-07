@@ -1,4 +1,5 @@
 import { userModel } from '../Model/userSchema.js'
+import {feedModel} from '../Model/feedSchema.js'
 import * as bcrypt from "bcrypt"
 
 
@@ -65,6 +66,71 @@ export async function registerUser(req, res) {
         }
     }
     catch (error) {
+        console.log(error)
+        res.status(500).send('Internal Server Error')
+    }
+}
+
+
+//profile
+
+export async function profile(req,res){
+    try {
+        const {id} = req.user
+        const user =userModel.findById({id})
+
+        if(user){
+            res.status(200).json({
+                message:"Success",
+                user
+            })
+        }
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).send('Internal Server error')
+    }
+}
+
+
+
+export async function feed(req,res){
+try{
+    const feeds = await feedModel.find()
+    if (feeds){
+        res.status(200).json({
+            feeds
+        })
+    }else{
+       return res.status(400).json({message:"Error Loading Feed"})
+    }
+}catch(error){
+    console.log(error)
+    return res.status(500).send('Internal Server Error')
+}
+}
+
+
+export async function post(req,res){
+    try{
+
+    const {username} = req.user
+    const {title,question} = req.body
+
+    const posts = await feedModel.create({
+        username,
+        title,
+        question
+    })
+
+    if(posts){
+        return res.status(200).json({
+            message:"Question Posted Successfully"
+        })}
+        else{
+        return res.status(400).send('Failed To Post Your Question')
+    }}catch(error){
         console.log(error)
         res.status(500).send('Internal Server Error')
     }

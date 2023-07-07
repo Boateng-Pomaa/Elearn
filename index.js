@@ -9,7 +9,6 @@ dotenv.config()
 
 const app = express()
 app.use(cors())
-
 app.use(express.json())
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }))
@@ -19,7 +18,7 @@ app.use(user)
 
 
 const port = process.env.PORT ||3000
-const db = process.env.DB_URL
+const db = "mongodb+srv://lindapomaa27:Molz3f2rUiDZFpGi@cluster2.x8qfgr1.mongodb.net/?retryWrites=true&w=majority"
 
 mongoose.connect(db, {
     useNewUrlParser: true,
