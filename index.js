@@ -4,6 +4,8 @@ import dotenv from "dotenv"
 import mongoose from "mongoose"
 import bodyParser from "body-parser"
 import user from './routes/userRoute.js'
+import passport from "./middleware/passport.js"
+import session from "express-session"
 
 dotenv.config()
 
@@ -14,11 +16,19 @@ app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(user)
 
+app.use(session({
+    secret: process.env.JWT_SECRET,
+    resave:false,
+    saveUninitialized:true
+}))
+app.use(passport.initialize())
+app.use(passport.session())
+
 
 
 
 const port = process.env.PORT ||3000
-const db = "mongodb+srv://lindapomaa27:Molz3f2rUiDZFpGi@cluster2.x8qfgr1.mongodb.net/?retryWrites=true&w=majority"
+const db = process.env.DB_URL
 
 mongoose.connect(db, {
     useNewUrlParser: true,

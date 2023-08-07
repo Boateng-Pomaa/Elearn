@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
 import { check } from 'express-validator'
-import {registerUser, loginUser, profile ,feed, post} from '../controller/userController.js'
+import {registerUser, loginUser, profile ,feed, post,search,answers,yourQuestion,yourAnswer} from '../controller/userController.js'
 
 
 
@@ -14,5 +14,9 @@ router.post('/login', [
       .get('/profile',profile)
       .get('/feed',feed)
       .post('/post',post)
+      .get('/search',search)
+      .post('/answer',answers)
+      .get('/userQuestions',yourQuestion)
+      .get('/userAnswers',yourAnswer)
 
 export default router

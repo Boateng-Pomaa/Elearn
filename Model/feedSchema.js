@@ -7,7 +7,7 @@ const {Schema,model} = mongoose
 const feedSchema = new Schema({
     username:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'users', required: true
+        ref: 'users', required: false
     },
     title:{
        type: String,
@@ -18,7 +18,10 @@ const feedSchema = new Schema({
         type:String,
         required:true
     },
-    timestamp:true
-})
+    answers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'answer' }],
+    upvote:[{type:String}],
+    downvote:[{type:String}]
+    }
+)
 
 export const feedModel = model('posts',feedSchema)
