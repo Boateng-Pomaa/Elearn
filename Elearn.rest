@@ -1,17 +1,18 @@
 @url = "http://localhost:5000"
 
 ###
-POST http://localhost:3000/signup HTTP/1.1
+POST http://localhost:5000/signup HTTP/1.1
 Content-Type: application/json
 
 {
-    "username":"pomaa2",
-    "password":"1234567"
+    "username":"pomaa1",
+    "email":"pomaa1@example.com",
+    "password":"12345678"
 }
 
 
 ###
-POST http://localhost:3000/login HTTP/1.1
+POST http://localhost:5000/login HTTP/1.1
 Content-Type: application/json
 
 {

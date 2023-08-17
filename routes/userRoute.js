@@ -11,12 +11,12 @@ router.post('/login', [
     check("A valid password is required").isLength({min:4})
       ],loginUser)
 
-      .get('/profile',profile)
+      .get('/profile/:id',profile)
       .get('/feed',feed)
-      .post('/post',post)
+      .post('/post/:username',post)
       .get('/search',search)
-      .post('/answer',answers)
-      .get('/userQuestions',yourQuestion)
-      .get('/userAnswers',yourAnswer)
+      .post('/answer/:id/:quesionId',answers)
+      .get('/userQuestions/:id',yourQuestion)
+      .get('/userAnswers/:id',yourAnswer)
 
 export default router

@@ -19,8 +19,15 @@ const feedSchema = new Schema({
         required:true
     },
     answers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'answer' }],
-    upvote:[{type:String}],
-    downvote:[{type:String}]
+    upvote:{type:Number,
+        default:0
+    },
+    downvote:{type:Number,
+        default:0
+    }
+    },
+    {
+        timestamps: true
     }
 )
 

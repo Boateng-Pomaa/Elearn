@@ -10,9 +10,17 @@ const answers = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users', required: false
 },
-upvote:[{type:String}],
-    downvote:[{type:String}]
-})
+upvote:{type:Number,
+  default:0
+},
+    downvote:{type:String,
+      default:0
+    }    
+},
+{
+    timestamps: true
+}
+)
 
 
 export const answersModel = model("answer",answers)

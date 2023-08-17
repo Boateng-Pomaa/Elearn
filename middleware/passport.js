@@ -9,7 +9,7 @@ dotenv.config()
 
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
 opts.secretOrKey = process.env.JWT_SECRET
-console.log(opts.secretOrKey)
+
 
 
   passport.use(
