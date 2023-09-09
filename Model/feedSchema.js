@@ -7,7 +7,7 @@ const {Schema,model} = mongoose
 const feedSchema = new Schema({
     username:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'users', required: false
+        ref: 'users', required: true
     },
     title:{
        type: String,
@@ -18,11 +18,8 @@ const feedSchema = new Schema({
         type:String,
         required:true
     },
-    answers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'answer' }],
+    answers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'answers' }],
     upvote:{type:Number,
-        default:0
-    },
-    downvote:{type:Number,
         default:0
     }
     },

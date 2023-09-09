@@ -4,18 +4,17 @@ const {Schema, model} = mongoose
 
 
 const answers = new Schema({
-  content: {String},
-  question: { type: mongoose.Schema.Types.ObjectId, ref: 'posts' },
+  content: {type:String,
+    required:true
+  },
+  questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'posts',required:true },
   username:{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'users', required: false
+    ref: 'users', required: true
 },
 upvote:{type:Number,
   default:0
-},
-    downvote:{type:String,
-      default:0
-    }    
+}   
 },
 {
     timestamps: true
@@ -23,4 +22,4 @@ upvote:{type:Number,
 )
 
 
-export const answersModel = model("answer",answers)
+export const answersModel = model("answers",answers)

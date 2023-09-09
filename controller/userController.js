@@ -88,7 +88,7 @@ export async function registerUser(req, res) {
 export async function profile(req, res) {
     try {
         const { id } = req.params
-        const user = await userModel.findById({ id }).select('-password')
+        const user = await userModel.findById({ _id: id }).select('-password')
         if (user) {
             res.status(200).json({
                 message: "Success",
@@ -110,13 +110,61 @@ export async function profile(req, res) {
 ///load all posted questions
 export async function feed(req, res) {
     try {
-        const feeds = await feedModel.find({})
-        if (feeds) {
+        const posts = await feedModel.find().populate({
+            path: 'username',
+            select: '-_id username'
+        })
+        .sort({ createdAt: -1 }) // Sort by createdAt field in descending order (most recent first)
+        .limit(50)
+
+        const feeds = posts.map(post => {
+            const createdAt = post.createdAt
+
+            const now = new Date()
+            const currentDay = now.getDate()
+            const postDay = new Date(createdAt).getDate()
+
+            let formattedTime
+            if (currentDay === postDay) {
+                const timestamp = new Date(createdAt)
+                formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            } else {
+                formattedTime = new Date(createdAt).toLocaleDateString()
+            }
+
+            return {
+                ...post.toObject(),
+                username: post.username.username,
+                createdAt: formattedTime
+            }
+        })
+
+        if (posts) {
             res.status(200).json({
                 feeds
             })
         } else {
             return res.status(400).json({ message: "Error Loading Feed" })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).send('Internal Server Error')
+    }
+}
+
+///specific question
+export async function specificQuestion(req, res) {
+    try {
+        const { questionId } = req.params
+        const feed = await feedModel.findOne({ _id: questionId }).populate({
+            path: "answers"
+        })
+        if (feed) {
+            res.status(200).json({
+                feed
+            })
+        } else {
+            return res.status(400).json({ message: "Error Loading answers" })
         }
     } catch (error) {
         console.log(error)
@@ -136,10 +184,10 @@ export async function post(req, res) {
             title,
             question
         })
-
         if (posts) {
             return res.status(200).json({
-                message: "Question Posted Successfully"
+                message: "Question Posted Successfully",
+                posts
             })
         }
         else {
@@ -173,33 +221,71 @@ export async function search(req, res) {
 }
 
 ////answering post
-export async function answers(req, res) {
+export async function addAnswer(req, res) {
     try {
         const { id } = req.params
         const { content } = req.body
-        const { questionId } = req.params
-
-        const questExist = await feedModel.findById(questionId)
+        const { questionId } = req.query
+        console.log(questionId)
+        const questExist = await feedModel.findOne({ _id: questionId })
         if (!questExist) {
             return res.status(400).json({
                 message: 'question not found'
             })
         }
-        const newAnswer = await answersModel.create({ content, id })
+        const newAnswer = await answersModel.create({ username: id, questionId, content })
         if (!newAnswer) {
             return res.status(400).json({
                 message: 'Failed to record answer'
             })
         }
         return res.status(200).json({
-            mesage: "Answer recorded!"
+            mesage: "Answer recorded!",
+            newAnswer
         })
-
     } catch (error) {
         console.log(error)
         return res.status(500).json({ message: "Internal Server Error" })
     }
+}
 
+export async function viewAnswers(req, res) {
+    try {
+        const { questionId } = req.params
+        const answer = await answersModel.find({ questionId }).populate({
+            path: 'username',
+            select: '-_id username'
+        })
+
+        const answers = answer.map(post => {
+            const createdAt = post.createdAt
+
+            const now = new Date()
+            const currentDay = now.getDate()
+            const postDay = new Date(createdAt).getDate()
+
+            let formattedTime
+            if (currentDay === postDay) {
+                const timestamp = new Date(createdAt)
+                formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            } else {
+                formattedTime = new Date(createdAt).toLocaleDateString()
+            }
+
+            return {
+                ...post.toObject(),
+                username: post.username.username,
+                createdAt: formattedTime
+            }
+        })
+        if (!answer) {
+            return res.status(400).json({ message: 'no answers' })
+        }
+        return res.status(200).json({ answers })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "Internal Server Error" })
+    }
 }
 
 
@@ -208,10 +294,7 @@ export async function answers(req, res) {
 export async function yourQuestion(req, res) {
     try {
         const { id } = req.params
-        const allQuestions = await feedModel.findOne({username: id }).populate({
-            path:'feeds',
-            select:'-answers -updatedAt'
-        })
+        const allQuestions = await feedModel.find({ username: id })
         if (!allQuestions) {
             return res.status(400).json({
                 message: 'Failed to load questions'
@@ -231,8 +314,8 @@ export async function yourQuestion(req, res) {
 /// individual answers
 export async function yourAnswer(req, res) {
     try {
-        const { id } = req.user
-        const allAnswers = await answersModel.findById({ id })
+        const { id } = req.params
+        const allAnswers = await answersModel.find({ username: id })
         if (!allAnswers) {
             return res.status(400).json({
                 message: 'Failed to load answers'
@@ -275,7 +358,7 @@ export async function upvoteQuestion(req, res) {
 export async function downVoteQuestion(req, res) {
     try {
         const { questionId } = req.params
-        const downvote = await feedModel.findOneAndUpdate({ questionId }, { $dec: { downvote: 1 } }, { upsert: true })
+        const downvote = await feedModel.findOneAndUpdate({ questionId }, { $dec: { upvote: 1 } }, { upsert: true })
         if (!downvote) {
             return res.status(400).json({
                 message: 'Failed to upvote question'
@@ -295,7 +378,7 @@ export async function downVoteQuestion(req, res) {
 export async function upvoteAnswer(req, res) {
     try {
         const { answerId } = req.params
-        const upvote = await answersModel.findOneAndUpdate({ answerId }, { $inc: { upvote: 1 } }, { upsert: true })
+        const upvote = await answersModel.findOneAndUpdate({ _id: answerId }, { $inc: { upvote: 1 } }, { upsert: true })
         if (!upvote) {
             return res.status(400).json({
                 message: 'Failed to upvote answer'
@@ -314,7 +397,7 @@ export async function upvoteAnswer(req, res) {
 export async function downVoteAnswer(req, res) {
     try {
         const { answerId } = req.params
-        const downvote = await answersModel.findOneAndUpdate({ answerId }, { $dec: { downvote: 1 } }, { upsert: true })
+        const downvote = await answersModel.findOneAndUpdate({ _id: answerId }, { $dec: { upvote: 1 } }, { upsert: true })
         if (!downvote) {
             return res.status(400).json({
                 message: 'Failed to upvote question'
