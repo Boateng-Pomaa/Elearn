@@ -5,7 +5,7 @@ import mongoose from "mongoose"
 import bodyParser from "body-parser"
 import user from './routes/userRoute.js'
 import passport from "./middleware/passport.js"
-import session from "express-session"
+import session from 'express-session'
 
 dotenv.config()
 

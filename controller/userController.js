@@ -1,6 +1,7 @@
 import { userModel } from '../Model/userSchema.js'
 import { feedModel } from '../Model/feedSchema.js'
 import { answersModel } from '../Model/answersSchema.js'
+import { scoreModel } from '../Model/scoresSchema.js'
 import * as bcrypt from "bcrypt"
 import dotenv from 'dotenv'
 import jwt from "jsonwebtoken"
@@ -88,7 +89,7 @@ export async function registerUser(req, res) {
 export async function profile(req, res) {
     try {
         const { id } = req.params
-        const user = await userModel.findById({ _id: id }).select('-password')
+        const user = await userModel.findById({ _id: id }).populate({ path: 'scores', select: 'quiz scores' }).select('-password')
         if (user) {
             res.status(200).json({
                 message: "Success",
@@ -114,8 +115,8 @@ export async function feed(req, res) {
             path: 'username',
             select: '-_id username'
         })
-        .sort({ createdAt: -1 }) // Sort by createdAt field in descending order (most recent first)
-        .limit(50)
+            .sort({ createdAt: -1 }) // Sort by createdAt field in descending order (most recent first)
+            .limit(50)
 
         const feeds = posts.map(post => {
             const createdAt = post.createdAt
@@ -332,7 +333,26 @@ export async function yourAnswer(req, res) {
     }
 }
 
+// ////saving scores
+export async function saveScore(req, res) {
+    try {
+        const { id, score, quiz } = req.params
+        console.log(id, score, quiz)
+        const savedScore = await scoreModel.create({
+            username: id,
+            score,
+            quiz
+        })
+        if (!savedScore) {
+            return res.status(400).json({ message: "failed to save score" })
+        }
+        return res.status(200).json({ message: "Scores saved sucessfully" , savedScore})
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "Internal Server Error" })
+    }
 
+}
 //upvote
 export async function upvoteQuestion(req, res) {
     try {

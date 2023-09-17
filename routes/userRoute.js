@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
 import { check } from 'express-validator'
-import { registerUser, loginUser, profile, feed, post, search, addAnswer, yourQuestion, yourAnswer } from '../controller/userController.js'
+import { registerUser, loginUser, profile, feed, post, search, addAnswer, yourQuestion, yourAnswer,saveScore } from '../controller/userController.js'
 import { upvoteQuestion, downVoteQuestion, upvoteAnswer, downVoteAnswer, specificQuestion, viewAnswers } from '../controller/userController.js'
 
 
@@ -23,5 +23,6 @@ router.post('/signup', registerUser)
   .post('/downvoteA/:answerId', downVoteAnswer)
   .get('/viewQuestion', specificQuestion)
   .get('/viewAnswers/:questionId', viewAnswers)
+  .post('/saveScore/:id/:score/:quiz',saveScore)
 
 export default router

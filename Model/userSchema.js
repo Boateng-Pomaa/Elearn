@@ -20,6 +20,11 @@ const userSchema = new Schema({
         maxLength:50,
        
     },
+    scores:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'scores',
+      default:0
+    },
     token:{
       type: String
     }
