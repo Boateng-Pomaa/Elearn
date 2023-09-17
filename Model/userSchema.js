@@ -20,7 +20,7 @@ const userSchema = new Schema({
         maxLength:50,
        
     },
-    scores:[{
+    score:[{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'scores',
       default:0

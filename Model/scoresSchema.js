@@ -3,15 +3,15 @@ import mongoose from "mongoose"
 const {Schema,model} = mongoose
 
 const scores = new Schema({
-    username:{
+    user_id:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users', required: true
     },
-    quiz:{
-        type:String,
-    },
     score:{
         type:Number
+    },
+    quiz:{
+        type:String,
     }
 })
 

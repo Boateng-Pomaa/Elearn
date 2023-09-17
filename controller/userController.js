@@ -89,7 +89,7 @@ export async function registerUser(req, res) {
 export async function profile(req, res) {
     try {
         const { id } = req.params
-        const user = await userModel.findById({ _id: id }).populate({ path: 'scores', select: 'quiz scores' }).select('-password')
+        const user = await userModel.findById({ _id: id }).populate('score')
         if (user) {
             res.status(200).json({
                 message: "Success",
@@ -339,7 +339,7 @@ export async function saveScore(req, res) {
         const { id, score, quiz } = req.params
         console.log(id, score, quiz)
         const savedScore = await scoreModel.create({
-            username: id,
+            user_id: id,
             score,
             quiz
         })
