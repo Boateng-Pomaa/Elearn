@@ -2,6 +2,7 @@ import { userModel } from '../Model/userSchema.js'
 import { feedModel } from '../Model/feedSchema.js'
 import { answersModel } from '../Model/answersSchema.js'
 import { scoreModel } from '../Model/scoresSchema.js'
+import { transporter } from '../middleware/handlebarsConfig.js'
 import * as bcrypt from "bcrypt"
 import dotenv from 'dotenv'
 import jwt from "jsonwebtoken"
@@ -295,7 +296,31 @@ export async function viewAnswers(req, res) {
 export async function yourQuestion(req, res) {
     try {
         const { id } = req.params
-        const allQuestions = await feedModel.find({ username: id })
+        const allQuestions = await feedModel.find({ username: id }).sort({ createdAt: -1 })
+
+        const feeds = allQuestions.map(post => {
+            const createdAt = post.createdAt
+
+            const now = new Date()
+            const currentDay = now.getDate()
+            const postDay = new Date(createdAt).getDate()
+
+            let formattedTime
+            if (currentDay === postDay) {
+                const timestamp = new Date(createdAt)
+                formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            } else {
+                formattedTime = new Date(createdAt).toLocaleDateString()
+            }
+
+            return {
+                ...post.toObject(),
+                username: post.username.username,
+                createdAt: formattedTime
+            }
+        })
+
+
         if (!allQuestions) {
             return res.status(400).json({
                 message: 'Failed to load questions'
@@ -346,7 +371,7 @@ export async function saveScore(req, res) {
         if (!savedScore) {
             return res.status(400).json({ message: "failed to save score" })
         }
-        return res.status(200).json({ message: "Scores saved sucessfully" , savedScore})
+        return res.status(200).json({ message: "Scores saved sucessfully", savedScore })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ message: "Internal Server Error" })
@@ -432,3 +457,96 @@ export async function downVoteAnswer(req, res) {
         return res.status(500).json({ message: "Internal Server Error" })
     }
 }
+
+
+
+
+
+///reseting password
+export async function reqPasswordReset(req,res){
+    try {
+        const { email } = req.body
+    var user = await userModel.findOne({ email })
+
+    if (!user) {
+      return res.status(400).json({
+        message: "User does not exist"
+      })
+    }
+
+    const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, {
+      expiresIn: "30mins"
+    })
+
+    const hashedToken = await bcrypt.hash(resetToken, 10)
+    user = await userModel.findByIdAndUpdate({ _id: user._id }, { token: hashedToken })
+
+    const mailOptions = {
+        to: user.email,
+        from: process.env.EMAIL_USERNAME,
+        template: 'passwordResetRequest',
+        subject: 'Password Reset Request',
+        context: {
+          link: `${process.env.BASE_URL}/user/passwordreset/${user._id}/${resetToken}`,
+          email: user.email
+        }
+      }
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(400).json(error)
+        } else {
+          res.json({
+            status: "success",
+            data: "Reset Link sent successfully",
+          })
+          console.log("Email sent: " + info.response)
+        }
+      })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "Internal Server Error" })
+    }
+}
+
+/////resetting password
+export async function resetPassword(req, res) {
+    try {
+      const { id, resetToken } = req.params
+      var user = await userModel.findOne({ _id: id })
+      if (!user) {
+        return res.send("Invalid or expired Link")
+      } else {
+        const isValid = bcrypt.compare(resetToken, user.token)
+        if (!isValid) {
+          return res.send("Invalid or expired Link")
+        }
+        user.password = req.body.password
+        const hash = await bcrypt.hash(user.password, 10)
+        user = await userModel.findByIdAndUpdate({ _id: user._id }, { password: hash })
+        if (user) {
+        const mailOptions = {
+          to: user.email,
+          from: process.env.EMAIL_USERNAME,
+          template: 'passwordReset',
+          subject: 'Password Reset Successfully',
+          context: { email: user.email }
+        }
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return res.status(400).json({ error })
+          } else {
+            res.send({
+              status: "success",
+              data: "Password Reset successfully",
+            })
+            console.log("Email sent: " + info.response)
+          }
+        })
+      }
+    }
+  
+    } catch (error) {
+      res.status(500).send("Internal Server Error")
+    }
+  }

@@ -54,3 +54,11 @@ GET http://localhost:5000/viewAnswers/64fb1455d65a5bf5db3f367a HTTP/1.1
 
 ###PROFILE
 GET http://localhost:5000/profile/64d28d1e09a8a449b3d87b0b HTTP/1.1
+
+###request passord reset
+POST http://localhost:5000/requestpassword
+Content-Type: application/json
+
+{
+    "email":"lindapomaa27@gmail.com"
+}

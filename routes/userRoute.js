@@ -1,8 +1,8 @@
 import express from 'express'
 const router = express.Router()
 import { check } from 'express-validator'
-import { registerUser, loginUser, profile, feed, post, search, addAnswer, yourQuestion, yourAnswer,saveScore } from '../controller/userController.js'
-import { upvoteQuestion, downVoteQuestion, upvoteAnswer, downVoteAnswer, specificQuestion, viewAnswers } from '../controller/userController.js'
+import { registerUser, loginUser, profile, feed, post, search, addAnswer, yourQuestion, yourAnswer,saveScore,resetPassword } from '../controller/userController.js'
+import { upvoteQuestion, downVoteQuestion, upvoteAnswer, downVoteAnswer, specificQuestion, viewAnswers ,reqPasswordReset} from '../controller/userController.js'
 
 
 
@@ -24,5 +24,7 @@ router.post('/signup', registerUser)
   .get('/viewQuestion', specificQuestion)
   .get('/viewAnswers/:questionId', viewAnswers)
   .post('/saveScore/:id/:score/:quiz',saveScore)
+  .post('/requestpassword',reqPasswordReset)
+  .get('/user/passwordreset/:id/:resetToken', resetPassword)
 
 export default router
