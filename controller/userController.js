@@ -378,46 +378,6 @@ export async function saveScore(req, res) {
     }
 
 }
-//upvote
-export async function upvoteQuestion(req, res) {
-    try {
-        const { questionId } = req.params
-        const upvote = await feedModel.findOneAndUpdate({ questionId }, { $inc: { upvote: 1 } }, { upsert: true })
-        if (!upvote) {
-            return res.status(400).json({
-                message: 'Failed to upvote question'
-            })
-        } else {
-            return res.status(200).json({
-                mesage: "success"
-            })
-        }
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ message: "Internal Server Error" })
-    }
-}
-
-
-//downvote questions
-export async function downVoteQuestion(req, res) {
-    try {
-        const { questionId } = req.params
-        const downvote = await feedModel.findOneAndUpdate({ questionId }, { $dec: { upvote: 1 } }, { upsert: true })
-        if (!downvote) {
-            return res.status(400).json({
-                message: 'Failed to upvote question'
-            })
-        } else {
-            return res.status(200).json({
-                mesage: "success"
-            })
-        }
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ message: "Internal Server Error" })
-    }
-}
 
 //upvote answer
 export async function upvoteAnswer(req, res) {
@@ -460,48 +420,43 @@ export async function downVoteAnswer(req, res) {
 
 
 
-
-
 ///reseting password
-export async function reqPasswordReset(req,res){
+export async function reqPasswordReset(req, res) {
     try {
-        const { email } = req.body
-    var user = await userModel.findOne({ email })
+        const { email } = req.params
+        var user = await userModel.findOne({ email })
 
-    if (!user) {
-      return res.status(400).json({
-        message: "User does not exist"
-      })
-    }
-
-    const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: "30mins"
-    })
-
-    const hashedToken = await bcrypt.hash(resetToken, 10)
-    user = await userModel.findByIdAndUpdate({ _id: user._id }, { token: hashedToken })
-
-    const mailOptions = {
-        to: user.email,
-        from: process.env.EMAIL_USERNAME,
-        template: 'passwordResetRequest',
-        subject: 'Password Reset Request',
-        context: {
-          link: `${process.env.BASE_URL}/user/passwordreset/${user._id}/${resetToken}`,
-          email: user.email
+        if (!user) {
+            return res.status(400).json({
+                message: "User does not exist"
+            })
         }
-      }
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          return res.status(400).json(error)
-        } else {
-          res.json({
-            status: "success",
-            data: "Reset Link sent successfully",
-          })
-          console.log("Email sent: " + info.response)
+
+        const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, {
+            expiresIn: "30mins"
+        })
+        const data = [resetToken, user._id]
+        const mailOptions = {
+            to: user.email,
+            from: process.env.EMAIL_USERNAME,
+            template: 'passwordResetRequest',
+            subject: 'Password Reset Request',
+            context: {
+                link: `${process.env.BASE_URL}/verifyUser/${user._id}/${resetToken}`,
+                email: user.email
+            }
         }
-      })
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return res.status(400).json(error)
+            } else {
+                res.json({
+                    message: "success",
+                    data,
+                })
+                console.log("Email sent: " + info.response)
+            }
+        })
 
     } catch (error) {
         console.log(error)
@@ -510,43 +465,63 @@ export async function reqPasswordReset(req,res){
 }
 
 /////resetting password
+export async function passwordVerification(req, res) {
+    try {
+        const { id, resetToken } = req.params
+        console.log(id, resetToken)
+        var user = await userModel.findOne({ _id: id })
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired Link" })
+        } else {
+            const hashedToken = await bcrypt.hash(resetToken, 10)
+            user = await userModel.findByIdAndUpdate({ _id: user._id }, { token: hashedToken })
+
+            return res.status(200).send("Email Verified go back to the app and set new password")
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(500).send("Internal Server Error")
+    }
+}
+
+
+//adding new password
 export async function resetPassword(req, res) {
     try {
-      const { id, resetToken } = req.params
-      var user = await userModel.findOne({ _id: id })
-      if (!user) {
-        return res.send("Invalid or expired Link")
-      } else {
-        const isValid = bcrypt.compare(resetToken, user.token)
-        if (!isValid) {
-          return res.send("Invalid or expired Link")
-        }
-        user.password = req.body.password
-        const hash = await bcrypt.hash(user.password, 10)
-        user = await userModel.findByIdAndUpdate({ _id: user._id }, { password: hash })
+        const { password } = req.body
+        const { id, Token } = req.params
+        var user = await userModel.findOne({ _id: id })
         if (user) {
-        const mailOptions = {
-          to: user.email,
-          from: process.env.EMAIL_USERNAME,
-          template: 'passwordReset',
-          subject: 'Password Reset Successfully',
-          context: { email: user.email }
-        }
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            return res.status(400).json({ error })
-          } else {
-            res.send({
-              status: "success",
-              data: "Password Reset successfully",
+            const isValid = bcrypt.compare(Token, user.token)
+            if (!isValid) {
+                return res.status(400).json({ message: "Invalid or expired Link" })
+            }
+            user.password = password
+            const hashed = await bcrypt.hash(user.password, 10)
+            user = await userModel.findByIdAndUpdate({ _id: id }, { password: hashed })
+
+            const mailOptions = {
+                to: user.email,
+                from: process.env.EMAIL_USERNAME,
+                template: 'passwordReset',
+                subject: 'Password Reset Successfully',
+                context: {
+                    email: user.email
+                }
+            }
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return res.status(400).json(error)
+                } else {
+                    res.json({
+                        message: "success"
+                    })
+                    console.log("Email sent: " + info.response)
+                }
             })
-            console.log("Email sent: " + info.response)
-          }
-        })
-      }
-    }
-  
+        }
     } catch (error) {
-      res.status(500).send("Internal Server Error")
+        console.log(error)
+        res.status(500).send("Internal Server Error")
     }
-  }
+}

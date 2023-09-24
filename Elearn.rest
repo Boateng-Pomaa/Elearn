@@ -17,7 +17,7 @@ Content-Type: application/json
 
 {
      "username":"pomaa1",
-    "password":"12345678"
+    "password":"444444"
 }
 
 #####posting question
@@ -55,10 +55,17 @@ GET http://localhost:5000/viewAnswers/64fb1455d65a5bf5db3f367a HTTP/1.1
 ###PROFILE
 GET http://localhost:5000/profile/64d28d1e09a8a449b3d87b0b HTTP/1.1
 
-###request passord reset
-POST http://localhost:5000/requestpassword
-Content-Type: application/json
+###request password reset
+POST http://localhost:5000/requestpassword/lindapomaa27@gmail.com HTTP/1.1
+
+
+###verifying email
+POST http://localhost:5000/verifyUser/64d28d1e09a8a449b3d87b0b/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImxpbmRhcG9tYWEyN0BnbWFpbC5jb20iLCJpYXQiOjE2OTU1MTU5NTcsImV4cCI6MTY5NTUxNzc1N30.3hjiZl7gpJGpqKdldRLk7-Wzptc8OFHt5l0Bv3Qd640 HTTP/1.1
+
+####addimg new password
+POST http://localhost:5000/resetPassword/64d28d1e09a8a449b3d87b0b/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImxpbmRhcG9tYWEyN0BnbWFpbC5jb20iLCJpYXQiOjE2OTU1MTU5NTcsImV4cCI6MTY5NTUxNzc1N30.3hjiZl7gpJGpqKdldRLk7-Wzptc8OFHt5l0Bv3Qd640 HTTP/1.1
+Content-Type:application/json
 
 {
-    "email":"lindapomaa27@gmail.com"
+    "password":"444444"
 }
