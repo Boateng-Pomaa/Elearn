@@ -435,7 +435,7 @@ export async function reqPasswordReset(req, res) {
         const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, {
             expiresIn: "30mins"
         })
-        const data = [resetToken, user._id]
+        const data = [{Token:resetToken, Id:user._id}]
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USERNAME,
@@ -463,7 +463,6 @@ export async function reqPasswordReset(req, res) {
         return res.status(500).json({ message: "Internal Server Error" })
     }
 }
-
 /////resetting password
 export async function passwordVerification(req, res) {
     try {
@@ -514,7 +513,7 @@ export async function resetPassword(req, res) {
                     return res.status(400).json(error)
                 } else {
                     res.json({
-                        message: "success"
+                        message: "Password Reset Sucessfully"
                     })
                     console.log("Email sent: " + info.response)
                 }
