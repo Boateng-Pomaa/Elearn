@@ -513,7 +513,7 @@ export async function resetPassword(req, res) {
                     return res.status(400).json(error)
                 } else {
                     res.json({
-                        message: "Password Reset Sucessfully"
+                        message: "Password Reset Sucessfully",data:"sent"
                     })
                     console.log("Email sent: " + info.response)
                 }
