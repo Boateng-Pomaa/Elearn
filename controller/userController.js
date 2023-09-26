@@ -473,7 +473,7 @@ export async function passwordVerification(req, res) {
             return res.status(400).json({ message: "Invalid or expired Link" })
         } else {
             const hashedToken = await bcrypt.hash(resetToken, 10)
-            user = await userModel.findByIdAndUpdate({ _id: user._id }, { token: hashedToken })
+            user = await userModel.findByIdAndUpdate({ _id: id }, { token: hashedToken })
 
             return res.status(200).send("Email Verified go back to the app and set new password")
         }
