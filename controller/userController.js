@@ -142,7 +142,7 @@ export async function feed(req, res) {
         })
 
         if (posts) {
-            res.status(200).json({
+            res.status(200).json({message:"Success",
                 feeds
             })
         } else {
@@ -320,7 +320,6 @@ export async function yourQuestion(req, res) {
             }
         })
 
-
         if (!allQuestions) {
             return res.status(400).json({
                 message: 'Failed to load questions'
@@ -328,7 +327,7 @@ export async function yourQuestion(req, res) {
         } else {
             return res.status(200).json({
                 mesage: "success",
-                allQuestions
+                feeds
             })
         }
     } catch (error) {
