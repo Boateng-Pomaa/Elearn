@@ -206,16 +206,16 @@ export async function post(req, res) {
 export async function search(req, res) {
     try {
         const { keyword } = req.query
-        const feed = await feedModel.find({
+        const feeds = await feedModel.find({
             $or: [
                 { title: { $regex: `${keyword}`, $options: 'i' } },
                 { description: { $regex: `${keyword}`, $options: 'i' } }
             ]
         })
-        if (!feed) {
+        if (!feeds) {
             return res.status(400).send("Unable to fetch data")
         }
-        return res.status(200).json({ feed })
+        return res.status(200).json({message:"success", feeds })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ message: "Internal Server Error" })
