@@ -443,7 +443,7 @@ export async function reqPasswordReset(req, res) {
             subject: 'Password Reset Request',
             context: {
                 link: `${process.env.BASE_URL}/verifyUser/${user._id}/${resetToken}`,
-                email: user.email
+                username: user.username
             }
         }
         transporter.sendMail(mailOptions, (error, info) => {
