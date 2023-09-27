@@ -341,6 +341,27 @@ export async function yourAnswer(req, res) {
     try {
         const { id } = req.params
         const allAnswers = await answersModel.find({ username: id })
+        const answers = allAnswers.map(post => {
+            const createdAt = post.createdAt
+
+            const now = new Date()
+            const currentDay = now.getDate()
+            const postDay = new Date(createdAt).getDate()
+
+            let formattedTime
+            if (currentDay === postDay) {
+                const timestamp = new Date(createdAt)
+                formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            } else {
+                formattedTime = new Date(createdAt).toLocaleDateString()
+            }
+
+            return {
+                ...post.toObject(),
+                username: post.username.username,
+                createdAt: formattedTime
+            }
+        })
         if (!allAnswers) {
             return res.status(400).json({
                 message: 'Failed to load answers'
@@ -348,7 +369,7 @@ export async function yourAnswer(req, res) {
         } else {
             return res.status(200).json({
                 mesage: "success",
-                allAnswers
+                answers
             })
         }
     } catch (error) {
