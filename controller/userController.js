@@ -383,14 +383,15 @@ export async function saveScore(req, res) {
 export async function upvoteAnswer(req, res) {
     try {
         const { answerId } = req.params
-        const upvote = await answersModel.findOneAndUpdate({ _id: answerId }, { $inc: { upvote: 1 } }, { upsert: true })
+        const upvote = await answersModel.findOneAndUpdate({ _id: answerId }, { $inc: { upvote: 1 } }, { new: true })
         if (!upvote) {
             return res.status(400).json({
                 message: 'Failed to upvote answer'
             })
         } else {
             return res.status(200).json({
-                mesage: "success"
+                mesage: "success",
+                upvote
             })
         }
     } catch (error) {
@@ -402,14 +403,15 @@ export async function upvoteAnswer(req, res) {
 export async function downVoteAnswer(req, res) {
     try {
         const { answerId } = req.params
-        const downvote = await answersModel.findOneAndUpdate({ _id: answerId }, { $dec: { upvote: 1 } }, { upsert: true })
+        const downvote = await answersModel.findOneAndUpdate({ _id: answerId }, { $inc: { upvote: -1 } }, { new: true })
         if (!downvote) {
             return res.status(400).json({
                 message: 'Failed to upvote question'
             })
         } else {
             return res.status(200).json({
-                mesage: "success"
+                mesage: "success",
+                downvote
             })
         }
     } catch (error) {

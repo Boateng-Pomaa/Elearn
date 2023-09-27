@@ -69,3 +69,8 @@ Content-Type:application/json
 {
     "password":"444444"
 }
+
+###voting
+POST http://localhost:5000/upvote/64fb14d2d65a5bf5db3f367d HTTP/1.1
+###downvoting
+POST http://localhost:5000/downvote/64fb14d2d65a5bf5db3f367d HTTP/1.1
