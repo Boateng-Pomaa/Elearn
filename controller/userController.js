@@ -435,7 +435,7 @@ export async function reqPasswordReset(req, res) {
         const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, {
             expiresIn: "30mins"
         })
-        const data = [{Token:resetToken, Id:user._id}]
+        const data = {Token:resetToken, Id:user._id}
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USERNAME,
