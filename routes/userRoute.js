@@ -24,6 +24,6 @@ router.post('/signup', registerUser)
   .post('/saveScore/:id/:score/:quiz',saveScore)
   .post('/requestpassword/:email',reqPasswordReset)
   .post('/resetPassword/:id/:Token', resetPassword)
-  .post('/verifyUser/:id/:resetToken',passwordVerification)
+  .get('/verifyUser/:id/:resetToken',passwordVerification)
 
 export default router

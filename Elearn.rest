@@ -60,7 +60,7 @@ POST http://localhost:5000/requestpassword/lindapomaa27@gmail.com HTTP/1.1
 
 
 ###verifying email
-POST http://localhost:5000/verifyUser/64d28d1e09a8a449b3d87b0b/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImxpbmRhcG9tYWEyN0BnbWFpbC5jb20iLCJpYXQiOjE2OTU1MTU5NTcsImV4cCI6MTY5NTUxNzc1N30.3hjiZl7gpJGpqKdldRLk7-Wzptc8OFHt5l0Bv3Qd640 HTTP/1.1
+GET http://localhost:5000/verifyUser/64d28d1e09a8a449b3d87b0b/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImxpbmRhcG9tYWEyN0BnbWFpbC5jb20iLCJpYXQiOjE2OTU1MTU5NTcsImV4cCI6MTY5NTUxNzc1N30.3hjiZl7gpJGpqKdldRLk7-Wzptc8OFHt5l0Bv3Qd640 HTTP/1.1
 
 ####addimg new password
 POST http://localhost:5000/resetPassword/64d28d1e09a8a449b3d87b0b/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImxpbmRhcG9tYWEyN0BnbWFpbC5jb20iLCJpYXQiOjE2OTU1MTU5NTcsImV4cCI6MTY5NTUxNzc1N30.3hjiZl7gpJGpqKdldRLk7-Wzptc8OFHt5l0Bv3Qd640 HTTP/1.1
