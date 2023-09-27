@@ -142,7 +142,8 @@ export async function feed(req, res) {
         })
 
         if (posts) {
-            res.status(200).json({message:"Success",
+            res.status(200).json({
+                message: "Success",
                 feeds
             })
         } else {
@@ -206,16 +207,43 @@ export async function post(req, res) {
 export async function search(req, res) {
     try {
         const { keyword } = req.query
-        const feeds = await feedModel.find({
+        const feed = await feedModel.find({
             $or: [
                 { title: { $regex: `${keyword}`, $options: 'i' } },
                 { description: { $regex: `${keyword}`, $options: 'i' } }
             ]
+        }).populate({
+            path: 'username',
+            select: '-_id username'
         })
-        if (!feeds) {
+            .sort({ createdAt: -1 })
+            .limit(50)
+
+        const feeds = feed.map(post => {
+            const createdAt = post.createdAt
+
+            const now = new Date()
+            const currentDay = now.getDate()
+            const postDay = new Date(createdAt).getDate()
+
+            let formattedTime
+            if (currentDay === postDay) {
+                const timestamp = new Date(createdAt)
+                formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            } else {
+                formattedTime = new Date(createdAt).toLocaleDateString()
+            }
+
+            return {
+                ...post.toObject(),
+                username: post.username.username,
+                createdAt: formattedTime
+            }
+        })
+        if (!feed) {
             return res.status(400).send("Unable to fetch data")
         }
-        return res.status(200).json({message:"success", feeds })
+        return res.status(200).json({ message: "success", feeds })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ message: "Internal Server Error" })
@@ -457,7 +485,7 @@ export async function reqPasswordReset(req, res) {
         const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, {
             expiresIn: "30mins"
         })
-        const data = {Token:resetToken, Id:user._id}
+        const data = { Token: resetToken, Id: user._id }
         const mailOptions = {
             to: user.email,
             from: process.env.EMAIL_USERNAME,
@@ -535,7 +563,7 @@ export async function resetPassword(req, res) {
                     return res.status(400).json(error)
                 } else {
                     res.json({
-                        message: "Password Reset Sucessfully",data:"sent"
+                        message: "Password Reset Sucessfully", data: "sent"
                     })
                     console.log("Email sent: " + info.response)
                 }
