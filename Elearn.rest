@@ -80,3 +80,6 @@ GET http://localhost:5000/userAnswers/64d28d1e09a8a449b3d87b0b HTTP/1.1
 
 ### user questions
 GET http://localhost:5000/userQuestions/64d28d1e09a8a449b3d87b0b HTTP/1.1
+
+####getting scores
+GET http://localhost:5000/getScore/64d28d1e09a8a449b3d87b0b HTTP/1.1

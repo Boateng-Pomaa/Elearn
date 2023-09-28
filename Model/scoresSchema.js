@@ -13,6 +13,9 @@ const scores = new Schema({
     quiz:{
         type:String,
     }
+},
+{
+    timestamps: true
 })
 
 export const scoreModel = model("scores",scores)

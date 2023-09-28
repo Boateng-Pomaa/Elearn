@@ -90,17 +90,24 @@ export async function registerUser(req, res) {
 export async function profile(req, res) {
     try {
         const { id } = req.params
-        const user = await userModel.findById({ _id: id }).populate('score')
-        if (user) {
+        const user = await userModel.findById(id)
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found'
+            })
+        }
+
+        const userScores = await scoreModel.find({ user_id: user._id });
+        // Attach scores to the user object
+        user.score = userScores
+
+        
             res.status(200).json({
                 message: "Success",
                 user
             })
-        } else {
-            return res.status(404).json({
-                message: "Not Found"
-            })
-        }
+        
 
     } catch (error) {
         console.log(error)
@@ -245,6 +252,20 @@ export async function search(req, res) {
         }
         return res.status(200).json({ message: "success", feeds })
     } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "Internal Server Error" })
+    }
+}
+//getting user scores
+export async function getScores(req,res){
+    try{
+        const {id} = req.params
+        const Score = await scoreModel.find({user_id:id})
+        if(!Score){
+            return res.status(400).send("Unable to fetch data")
+        }
+        return res.status(200).json({ message: "success", Score })
+    }catch(error){
         console.log(error)
         return res.status(500).json({ message: "Internal Server Error" })
     }
@@ -411,15 +432,15 @@ export async function saveScore(req, res) {
     try {
         const { id, score, quiz } = req.params
         console.log(id, score, quiz)
-        const savedScore = await scoreModel.create({
+        const Score = await scoreModel.create({
             user_id: id,
             score,
             quiz
         })
-        if (!savedScore) {
+        if (!Score) {
             return res.status(400).json({ message: "failed to save score" })
         }
-        return res.status(200).json({ message: "Scores saved sucessfully", savedScore })
+        return res.status(200).json({ message: "Scores saved sucessfully", Score })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ message: "Internal Server Error" })
@@ -555,7 +576,7 @@ export async function resetPassword(req, res) {
                 template: 'passwordReset',
                 subject: 'Password Reset Successfully',
                 context: {
-                    email: user.email
+                    username: user.username
                 }
             }
             transporter.sendMail(mailOptions, (error, info) => {
