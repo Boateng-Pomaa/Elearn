@@ -27,6 +27,9 @@ const userSchema = new Schema({
     }],
     token:{
       type: String
+    },
+    fcm_token:{
+      type:String
     }
 
 },

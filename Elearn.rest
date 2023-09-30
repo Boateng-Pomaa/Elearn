@@ -83,3 +83,9 @@ GET http://localhost:5000/userQuestions/64d28d1e09a8a449b3d87b0b HTTP/1.1
 
 ####getting scores
 GET http://localhost:5000/getScore/64d28d1e09a8a449b3d87b0b HTTP/1.1
+
+###updating user with device token
+POST http://localhost:5000/update/64d28d1e09a8a449b3d87b0b/cV93ny66RNW82h_UFjo6IL:APA91bGUFY-Qf5eOzsgTl33NpFU0Fp8JMb6APtOUbOdNfhJqmD4xi-dJv7XzG0XNjVAhUsa6n98ojaWYiIQvS5m6neZ1LwocICy2PBIpME8Un0_O1eMotRGTpPNaKtcvDN9CABsi6oQ1
+
+###sending notification
+POST http://localhost:5000/notify/pomaa1

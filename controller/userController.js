@@ -3,9 +3,11 @@ import { feedModel } from '../Model/feedSchema.js'
 import { answersModel } from '../Model/answersSchema.js'
 import { scoreModel } from '../Model/scoresSchema.js'
 import { transporter } from '../middleware/handlebarsConfig.js'
+import {messaging} from '../middleware/firebaseConfig.js'
 import * as bcrypt from "bcrypt"
 import dotenv from 'dotenv'
 import jwt from "jsonwebtoken"
+
 
 dotenv.config()
 
@@ -102,12 +104,12 @@ export async function profile(req, res) {
         // Attach scores to the user object
         user.score = userScores
 
-        
-            res.status(200).json({
-                message: "Success",
-                user
-            })
-        
+
+        res.status(200).json({
+            message: "Success",
+            user
+        })
+
 
     } catch (error) {
         console.log(error)
@@ -257,15 +259,15 @@ export async function search(req, res) {
     }
 }
 //getting user scores
-export async function getScores(req,res){
-    try{
-        const {id} = req.params
-        const Score = await scoreModel.find({user_id:id})
-        if(!Score){
+export async function getScores(req, res) {
+    try {
+        const { id } = req.params
+        const Score = await scoreModel.find({ user_id: id })
+        if (!Score) {
             return res.status(400).send("Unable to fetch data")
         }
         return res.status(200).json({ message: "success", Score })
-    }catch(error){
+    } catch (error) {
         console.log(error)
         return res.status(500).json({ message: "Internal Server Error" })
     }
@@ -590,6 +592,51 @@ export async function resetPassword(req, res) {
                 }
             })
         }
+    } catch (error) {
+        console.log(error)
+        res.status(500).send("Internal Server Error")
+    }
+}
+
+//updating user with device token
+export async function addDeviceToken(req,res){
+    try{
+        const {id,fcm_token} = req.params
+        const user = await userModel.findByIdAndUpdate({ _id: id }, { fcm_token})
+        if(!user){
+            return res.status(400).json({message:"failed to update"})
+        }
+        return res.status(200).json({message:"User Updated"})
+    }catch(error){
+        console.log(error)
+        res.status(500).send("Internal Server Error")
+    }
+}
+
+////notifications
+export async function notification(req, res) {
+    try {
+        const { username} = req.params
+        var user = await userModel.findOne({username})
+        const token = user.fcm_token
+        const message = {
+            token: token,
+            android: {
+                notification: {
+                    title: "Question Answered",
+                    body: "Hi, your question has been answered",
+                },
+                priority: "high"
+            },
+            
+        }
+        messaging.send(message,false, (err)=>{
+            if(err){
+               return res.status(400).json({message:"failed to send notification"})
+            }else{
+                return res.status(200).json({message:"Notification Sent"})
+            }
+        })
     } catch (error) {
         console.log(error)
         res.status(500).send("Internal Server Error")
